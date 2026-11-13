@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %> · <%= locals.appName %></title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<% const currentUser = locals.currentUser; const flash = locals.flash; %>
+<% if (currentUser && !currentUser.must_change_password) { %>
+  <header class="topbar">
+    <a class="brand" href="/"><%= locals.appName %></a>
+    <nav>
+      <a href="/">Forside</a>
+      <% if (currentUser.role === 'admin') { %><a href="/admin/users">Brugere</a><% } %>
+    </nav>
+    <div class="me">
+      <span><%= currentUser.name %></span>
+      <a href="/account/password">Skift adgangskode</a>
+      <form method="post" action="/logout" class="inline">
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <button type="submit" class="link">Log ud</button>
+      </form>
+    </div>
+  </header>
+<% } %>
+<main class="<%= currentUser ? 'page' : 'page narrow' %>">
+<% if (flash) { %>
+  <div class="alert <%= flash.type %>"><%= flash.text %></div>
+<% } %>

@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<h1>Hej <%= currentUser.name %></h1>
+<p class="muted">Du er logget ind som <strong><%= currentUser.role === 'admin' ? 'administrator' : 'bruger' %></strong>.</p>
+
+<div class="grid">
+  <% if (currentUser.role === 'admin') { %>
+  <a class="tile" href="/admin/users">
+    <h2>Brugere</h2>
+    <p>Opret brugere, tildel roller og nulstil adgangskoder.</p>
+  </a>
+  <% } %>
+  <div class="tile disabled">
+    <h2>Din første funktion</h2>
+    <p>Byg den med Claude, f.eks. "Lav en side hvor brugerne kan registrere opgaver".</p>
+  </div>
+</div>
+<%- include('partials/footer') %>

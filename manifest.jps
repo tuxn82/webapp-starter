@@ -1,0 +1,131 @@
+# Webapp Starter - ECIT PaaS (Virtuozzo Application Platform 8.x)
+#
+# Opretter: NGINX (offentlig IP, HTTPS via Let's Encrypt) -> Node.js -> PostgreSQL
+# og udruller appen fra et Git-repo. Importeres via dashboardet: Import -> URL / Local File.
+#
+# STATUS: Ikke testet mod ECIT's platform endnu. Se "Validering" i README.md.
+
+type: install
+version: '1.7'
+id: webapp-starter
+name: Webapp Starter
+categories:
+  - apps/dev-and-admin-tools
+description:
+  text: |
+    Node.js-webapp med login og brugeradministration, PostgreSQL-database,
+    HTTPS og valgfri IP-spærring. Klar til at bygge videre på med Claude Code.
+  short: Sikker Node.js-webapp med login, database og HTTPS
+
+settings:
+  fields:
+    - name: appName
+      caption: Appens navn
+      type: string
+      default: Webapp
+      required: true
+    - name: repo
+      caption: Git-repo (HTTPS-URL)
+      type: string
+      required: true
+      tooltip: Dit eget repo oprettet fra webapp-starter-skabelonen
+    - name: branch
+      caption: Branch
+      type: string
+      default: main
+      required: true
+    - name: gitLogin
+      caption: GitHub-brugernavn
+      type: string
+      tooltip: Kun nødvendigt for private repos
+    - name: gitToken
+      caption: GitHub-token (læseadgang)
+      type: string
+      inputType: password
+      tooltip: Fine-grained token med Contents Read-only til repoet. Kun nødvendigt for private repos
+    - name: adminEmail
+      caption: Administratorens e-mail
+      type: string
+      required: true
+    - name: allowedIps
+      caption: Tilladte IP'er
+      type: string
+      tooltip: Kommasepareret, f.eks. 203.0.113.10, 198.51.100.0/24. Tom = åben for alle
+
+globals:
+  dbUser: app
+  dbName: app
+  dbPass: ${fn.password(32)}
+  sessionSecret: ${fn.password(64)}
+  adminPass: ${fn.password(16)}
+
+nodes:
+  - nodeType: nginx
+    nodeGroup: bl
+    displayName: Load Balancer
+    cloudlets: 4
+    fixedCloudlets: 1
+    extip: true
+    isSLBAccessEnabled: false
+
+  - nodeType: nodejs
+    nodeGroup: cp
+    displayName: App
+    cloudlets: 8
+    fixedCloudlets: 1
+    isSLBAccessEnabled: false
+    env:
+      NODE_ENV: production
+      APP_FILE: server.js
+      APP_NAME: ${settings.appName}
+      DATABASE_URL: postgresql://${globals.dbUser}:${globals.dbPass}@sqldb:5432/${globals.dbName}
+      SESSION_SECRET: ${globals.sessionSecret}
+      ADMIN_EMAIL: ${settings.adminEmail}
+      ADMIN_PASSWORD: ${globals.adminPass}
+      ALLOWED_IPS: ${settings.allowedIps}
+
+  - nodeType: postgresql
+    nodeGroup: sqldb
+    displayName: Database
+    cloudlets: 8
+    fixedCloudlets: 2
+
+onInstall:
+  - createDatabase
+  - deployApp
+  - installLetsEncrypt
+  - restartNodes:
+      nodeGroup: cp
+
+actions:
+  createDatabase:
+    # Egen databasebruger til appen, så den ikke bruger platformens webadmin.
+    cmd[sqldb]:
+      - psql -U webadmin -d postgres -c "CREATE USER ${globals.dbUser} WITH PASSWORD '${globals.dbPass}';"
+      - psql -U webadmin -d postgres -c "CREATE DATABASE ${globals.dbName} OWNER ${globals.dbUser};"
+
+  deployApp:
+    deploy:
+      repo:
+        url: ${settings.repo}
+        branch: ${settings.branch}
+        login: ${settings.gitLogin}
+        password: ${settings.gitToken}
+      context: ROOT
+
+  installLetsEncrypt:
+    install:
+      jps: https://raw.githubusercontent.com/jelastic-jps/lets-encrypt/master/manifest.jps?_r=${fn.random}
+      nodeGroup: bl
+      skipEmail: true
+      settings:
+        nodeGroup: bl
+        customDomains: ''
+
+success: |
+  **${settings.appName}** er klar på [https://${env.domain}](https://${env.domain}).
+
+  Log ind med **${settings.adminEmail}** og den midlertidige adgangskode **${globals.adminPass}**.
+  Du bliver bedt om at vælge din egen adgangskode ved første login.
+
+  Bagefter bør du slette variablerne `ADMIN_EMAIL` og `ADMIN_PASSWORD` på App-noden.

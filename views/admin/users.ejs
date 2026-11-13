@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="heading">
+  <h1>Brugere</h1>
+  <a class="button" href="/admin/users/new">+ Opret bruger</a>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>Navn</th><th>E-mail</th><th>Rolle</th><th>Status</th><th>Sidst logget ind</th><th></th></tr>
+  </thead>
+  <tbody>
+  <% users.forEach(function (u) { %>
+    <tr class="<%= u.active ? '' : 'inactive' %>">
+      <td><%= u.name %></td>
+      <td><%= u.email %></td>
+      <td><%= u.role === 'admin' ? 'Administrator' : 'Bruger' %></td>
+      <td>
+        <% if (!u.active) { %><span class="badge off">Deaktiveret</span>
+        <% } else if (u.must_change_password) { %><span class="badge warn">Afventer ny adgangskode</span>
+        <% } else { %><span class="badge on">Aktiv</span><% } %>
+      </td>
+      <td><%= u.last_login_at ? new Date(u.last_login_at).toLocaleString('da-DK', { timeZone: 'Europe/Copenhagen' }) : '–' %></td>
+      <td class="actions">
+        <a href="/admin/users/<%= u.id %>/edit">Rediger</a>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<%- include('../partials/footer') %>
