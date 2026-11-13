@@ -88,8 +88,8 @@ DATABASE_URL=postgresql://localhost/app ADMIN_EMAIL=admin@test.dk ADMIN_PASSWORD
 ## Validering af manifestet (for vedligeholdere)
 
 `manifest.jps` er endnu ikke testet mod ECIT's platform (Virtuozzo 8.15). Tjek disse punkter ved første import:
-- Node-typerne `nginx`, `nodejs` og `postgresql` findes og har de forventede versioner.
-- `deploy` med `repo` virker, også med login og token til et privat repo.
+- ✅ Node-typerne `nginx`, `nodejs` og `postgresql` oprettes (testet 13. nov. 2026).
+- Git-udrulning via `env.vcs.CreateProject` + `env.vcs.Update` virker, også med login og token til et privat repo. (`deploy` kan kun arkiver: "invalid parameter [fileUrl]".)
 - `psql -U webadmin` virker i `cmd[sqldb]` uden adgangskode, ligesom i Web SSH.
 - `${fn.password()}` giver kun tegn, der er sikre i en URL og i SQL-citationstegn.
 - Let's Encrypt-add-on'et installeres uden fejl på `bl`.

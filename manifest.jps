@@ -105,13 +105,43 @@ actions:
       - psql -U webadmin -d postgres -c "CREATE DATABASE ${globals.dbName} OWNER ${globals.dbUser};"
 
   deployApp:
-    deploy:
-      repo:
-        url: ${settings.repo}
-        branch: ${settings.branch}
-        login: ${settings.gitLogin}
-        password: ${settings.gitToken}
-      context: ROOT
+    # JPS 'deploy' understøtter kun arkiver (fileUrl). Git udrulles via env.vcs,
+    # samme mønster som jelastic-jps/git-push-deploy (scripts/add-vcs-project.cs).
+    script: |
+      var url = String(getParam('url')).replace(/^\s+|\s+$/g, '');
+      if (!/\.git$/.test(url)) url = url.replace(/\/$/, '') + '.git';
+      var login = getParam('login') || null;
+      var password = getParam('password') || null;
+
+      var resp = jelastic.env.vcs.CreateProject({
+        envName: '${env.envName}',
+        session: session,
+        nodeGroup: 'cp',
+        type: 'git',
+        context: 'ROOT',
+        url: url,
+        branch: getParam('branch'),
+        keyId: null,
+        login: login,
+        password: password,
+        autoupdate: false,
+        interval: '1',
+        autoResolveConflict: true,
+        zdt: false
+      });
+      if (resp.result != 0) return resp;
+
+      return jelastic.env.vcs.Update({
+        envName: '${env.envName}',
+        session: session,
+        context: 'ROOT',
+        delay: 1
+      });
+    params:
+      url: ${settings.repo}
+      branch: ${settings.branch}
+      login: ${settings.gitLogin}
+      password: ${settings.gitToken}
 
   installLetsEncrypt:
     install:
