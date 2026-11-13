@@ -22,8 +22,13 @@ Klik på **Use this template → Create a new repository** på GitHub. Vælg **P
 3. Under **Permissions**: sæt **Contents** til **Read-only**.
 
 ### 3. Installér på ECIT PaaS
-1. Log ind på ECIT PaaS og klik **Import**.
-2. Vælg **URL** og indsæt adressen til `manifest.jps` i dit repo. Brug "Raw"-adressen fra GitHub.
+1. Log ind på ECIT PaaS og klik **IMPORT** i topmenuen. Opret **ikke** et environment først, for Import bygger et helt nyt.
+2. Vælg **URL** og indsæt adressen nedenfor. Den peger på den offentlige skabelon, så den virker, selvom dit eget repo er privat:
+
+   ```
+   https://raw.githubusercontent.com/tuxn82/webapp-starter/main/manifest.jps
+   ```
+
 3. Udfyld formularen:
 
 | Felt | Eksempel |
@@ -31,11 +36,14 @@ Klik på **Use this template → Create a new repository** på GitHub. Vælg **P
 | Appens navn | Kundeportal |
 | Git-repo | `https://github.com/dit-navn/dit-repo.git` |
 | Branch | `main` |
-| GitHub-brugernavn / token | Fra trin 2 |
+| GitHub-brugernavn | Dit GitHub-brugernavn (ikke din e-mail) |
+| GitHub-token | Tokenet fra trin 2 |
 | Administratorens e-mail | `dig@firma.dk` |
 | Tilladte IP'er | `203.0.113.10, 198.51.100.0/24` (lad stå tomt for at give adgang for alle) |
 
-4. Klik **Install**. Efter ca. 5 minutter får du adressen og en midlertidig adgangskode.
+   Pas på browserens autoudfyldning. Den sætter ofte din e-mail ind som GitHub-brugernavn og din ECIT-adgangskode ind som token. Ret begge felter.
+
+4. Klik **Install**. Efter ca. 5–10 minutter får du adressen og en midlertidig adgangskode.
 
 ### 4. Første login
 1. Log ind og vælg din egen adgangskode.
