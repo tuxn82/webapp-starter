@@ -150,7 +150,9 @@ actions:
       skipEmail: true
       settings:
         nodeGroup: bl
-        customDomains: ''
+        # Et tomt felt giver altid et STAGING-certifikat (ssl-manager.js: test = config.test || !customDomains).
+        # Environmentets eget domæne giver et rigtigt certifikat, fordi det peger på NGINX' offentlige IP.
+        customDomains: ${env.domain}
 
 success: |
   **${settings.appName}** er klar på [https://${env.domain}](https://${env.domain}).

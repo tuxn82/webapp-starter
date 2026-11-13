@@ -89,7 +89,7 @@ DATABASE_URL=postgresql://localhost/app ADMIN_EMAIL=admin@test.dk ADMIN_PASSWORD
 
 `manifest.jps` er endnu ikke testet mod ECIT's platform (Virtuozzo 8.15). Tjek disse punkter ved første import:
 - ✅ Node-typerne `nginx`, `nodejs` og `postgresql` oprettes (testet 13. nov. 2026).
-- Git-udrulning via `env.vcs.CreateProject` + `env.vcs.Update` virker, også med login og token til et privat repo. (`deploy` kan kun arkiver: "invalid parameter [fileUrl]".)
-- `psql -U webadmin` virker i `cmd[sqldb]` uden adgangskode, ligesom i Web SSH.
-- `${fn.password()}` giver kun tegn, der er sikre i en URL og i SQL-citationstegn.
-- Let's Encrypt-add-on'et installeres uden fejl på `bl`.
+- ✅ Git-udrulning sker via `env.vcs.CreateProject` + `env.vcs.Update`, også fra et privat repo. (`deploy` kan kun arkiver og fejler med "invalid parameter [fileUrl]".)
+- ✅ Git-udrulning, databaseoprettelse og genererede adgangskoder virker (testet 13. nov. 2026).
+- Let's Encrypt-add-on'et installeres på `bl`. Med et tomt `customDomains` udstedes der et **STAGING-certifikat** (testet). Derfor sætter manifestet nu `customDomains` til environmentets domæne. Det mangler at blive testet.
+- Let's Encrypt har en grænse for, hvor mange certifikater et domæne må få pr. uge. Alle environments deler `paas.ecit.com`, så det skal afklares med ECIT, hvis der kommer mange installationer.
